@@ -21,7 +21,9 @@ from django.db.backends import BaseDatabaseWrapper, BaseDatabaseFeatures, BaseDa
 from django.db.backends.signals import connection_created
 from django.conf import settings
 from django import VERSION as DjangoVersion
-if DjangoVersion[:2] == (1,4):
+if DjangoVersion[:2] == (1,5):
+    _DJANGO_VERSION = 15
+elif DjangoVersion[:2] == (1,4):
     # Django version 1.4 adds a backwards incompatible change to
     # DatabaseOperations
     _DJANGO_VERSION = 14
@@ -40,7 +42,7 @@ elif DjangoVersion[0] == 1:
     _DJANGO_VERSION = 13
 else:
     _DJANGO_VERSION = 9
-    
+
 from sql_server.pyodbc.operations import DatabaseOperations
 from sql_server.pyodbc.client import DatabaseClient
 from sql_server.pyodbc.creation import DatabaseCreation
@@ -200,7 +202,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             else:
                 # Only append DRIVER if DATABASE_ODBC_DSN hasn't been set
                 cstr_parts.append('DRIVER={%s}' % driver)
-                
+
                 if os.name == 'nt' or driver == 'FreeTDS' and \
                         options.get('host_is_server', False):
                     if port_str:
@@ -221,7 +223,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
             if self.MARS_Connection:
                 cstr_parts.append('MARS_Connection=yes')
-                
+
             if 'extra_params' in options:
                 cstr_parts.append(options['extra_params'])
 
@@ -368,6 +370,6 @@ class CursorWrapper(object):
         if attr in self.__dict__:
             return self.__dict__[attr]
         return getattr(self.cursor, attr)
-    
+
     def __iter__(self):
         return iter(self.cursor)
